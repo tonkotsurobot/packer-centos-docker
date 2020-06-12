@@ -1,0 +1,79 @@
+{
+  "variables": {
+    "vcenter_server": "{{env `VCENTER_SERVER`}}",
+    "vcenter_username": "{{env `VCENTER_USERNAME`}}",
+    "vcenter_password": "{{env `VCENTER_PASSWORD`}}"
+  },
+  "builders": [
+    {
+      "type": "vsphere-iso",
+      "vcenter_server":      "{{user `vcenter_server`}}",
+      "username":            "{{user `vcenter_username`}}",
+      "password":            "{{user `vcenter_password`}}",
+      "insecure_connection": "true",
+      "vm_name": "centos-base",
+      "cluster": "HOME",
+      "host":     "192.168.1.50",
+      "guest_os_type": "centos7_64Guest",
+
+      "CPUs":             2,
+      "RAM":              2048,
+      "RAM_reserve_all": true,
+
+
+      "disk_size":        8192,
+      "disk_thin_provisioned": true,
+
+      "network_card": "vmxnet3",
+      "cdrom_type": "sata",
+      "iso_urls": [
+        "http://192.168.1.30:8000/CentOS-7-x86_64-Minimal-1804.iso"
+      ],
+      "iso_checksum": "714acc0aefb32b7d51b515e25546835e55a90da9fb00417fbee2d03a62801efd",
+      "iso_checksum_type": "sha256",
+      
+      "ssh_username": "tempuser",
+      "ssh_password": "tempuser",
+      "ssh_timeout": "15m",
+
+      "shutdown_command": "echo 'shutdown -P now' > shutdown.sh; echo 'tempuser'|sudo -S sh 'shutdown.sh'",
+      "boot_wait": "7s",
+      "convert_to_template": true,
+
+      "floppy_files": ["ks.cfg"],
+      "boot_command": [        
+        "<esc><wait>",        
+        "linux ks=hd:fd0:/ks.cfg<enter>"      
+      ]
+    }],
+
+
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "sshd_config",
+      "destination": "/tmp/sshd_config"
+    },
+    {
+      "type": "file",
+      "source": "centos-ansible.sh",
+      "destination": "/tmp/centos-ansible.sh"
+    },
+    {
+      "inline": [
+        "chmod a+x /tmp/centos-ansible.sh && /tmp/centos-ansible.sh"
+      ],
+      "type": "shell",
+      "execute_command": "echo 'tempuser' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "./ansible-playbook-centos.yml"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'tempuser' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+      "script": "scripts/centos-vmware-cleanup.sh"
+    }
+  ]    
+}

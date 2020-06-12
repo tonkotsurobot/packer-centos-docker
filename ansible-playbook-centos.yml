@@ -1,0 +1,43 @@
+
+#Install packages
+- hosts: all
+  become: yes
+  tasks:
+    - name: Allow 'wheel' group to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: Add repository
+      yum_repository:
+        name: epel
+        description: docker-ce repo
+        baseurl: https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: Install a list of packages
+      yum:
+        name: "{{ packages }}"
+        update_cache: yes
+      vars:
+        packages:
+        - unzip
+        - perl
+        - vim-enhanced
+        - docker-ce 
+        - docker-ce-cli 
+        - containerd.io
+
+    - name: remove the firewalld package	
+      yum:	
+        name: firewalld	
+        state: absent
+
+    - name: Start service docker, if not started
+      service:
+        name: docker
+        state: started
+
+
