@@ -11,7 +11,7 @@
       "username":            "{{user `vcenter_username`}}",
       "password":            "{{user `vcenter_password`}}",
       "insecure_connection": "true",
-      "vm_name": "centos-base",
+      "vm_name": "centos-docker",
       "cluster": "HOME",
       "host":     "192.168.1.50",
       "guest_os_type": "centos7_64Guest",
