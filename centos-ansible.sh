@@ -2,6 +2,9 @@ yum -y update
 yum install -y openssh-server
 yum install -y ansible
 yum install -y wget
+yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
 useradd -m emario && usermod -aG wheel emario
 echo -e "changeme\nchangeme" | passwd emario
 mkdir -p /home/emario/.ssh && chmod 700 /home/emario && chown -R emario:emario /home/emario

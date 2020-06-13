@@ -11,12 +11,6 @@
         line: '%wheel ALL=(ALL) NOPASSWD: ALL'
         validate: 'visudo -cf %s'
 
-    - name: Add repository
-      yum_repository:
-        name: epel
-        description: docker-ce repo
-        baseurl: https://download.docker.com/linux/centos/docker-ce.repo
-
     - name: Install a list of packages
       yum:
         name: "{{ packages }}"
