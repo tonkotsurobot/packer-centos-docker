@@ -33,5 +33,11 @@
       service:
         name: docker
         state: started
+        enabled: yes
 
+    - name: Append the user 'emario' to "docker" group
+      user:
+        name: emario
+        groups: docker
+        append: yes
 
